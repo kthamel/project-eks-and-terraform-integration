@@ -1,0 +1,37 @@
+stages:
+  - print_environment_variables
+  - print_eks_list
+  - install_eksctl_birany
+  - create_the_cluster
+
+Print the exported values:
+  stage: print_environment_variables
+  script:
+    - echo Access key id is $AWS_ACCESS_KEY_ID
+    - echo Secret access key is $AWS_SECRET_ACCESS_KEY
+    - echo Working region is $AWS_DEFAULT_REGION
+  tags:
+    - shell-runner-2
+
+Print existing EKS list:
+  stage:  print_eks_list
+  script:
+    - aws eks list-clusters
+  tags:
+    - shell-runner-2
+
+Install required packages:
+  stage: install_eksctl_birany
+  script: 
+    - curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+    - sudo mv /tmp/eksctl /usr/local/bin
+    - eksctl version
+  tags:
+    - shell-runner-2
+
+Create the cluster:
+  stage: create_the_cluster
+  script:
+    - eksctl create cluster --name kthamel-k8s-cluster --node-type t2.micro --nodes 3 --nodes-min 3 --nodes-max 4 --region us-east-1
+  tags:
+    - shell-runner-2
